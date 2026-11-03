@@ -1,4 +1,4 @@
-from models.servico import Servico
+from model.servico import Servico
 import json
 
 class ServicoDAO:

@@ -1,4 +1,4 @@
-from models.atendimento import Atendimento
+from model.atendimento import Atendimento
 import json
 
 class AtendimentoDAO:
