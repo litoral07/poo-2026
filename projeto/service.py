@@ -1,13 +1,13 @@
-from models.cliente import Cliente
-from models.clientedao import ClienteDAO
-from models.servico import Servico
-from models.servicodao import ServicoDAO
-from models.horario import Horario
-from models.horariodao import HorarioDAO
-from models.atendimento import Atendimento
-from models.atendimentodao import AtendimentoDAO
-from models.profissional import Profissional
-from models.profissionaldao import ProfissionalDAO
+from model.cliente import Cliente
+from model.clientedao import ClienteDAO
+from model.servico import Servico
+from model.servicodao import ServicoDAO
+from model.horario import Horario
+from model.horariodao import HorarioDAO
+from model.atendimento import Atendimento
+from model.atendimentodao import AtendimentoDAO
+from model.profissional import Profissional
+from model.profissionaldao import ProfissionalDAO
 from datetime import datetime, timedelta
 
 class Service:
@@ -128,15 +128,31 @@ class Service:
                 r.append(h)
         r.sort (key = lambda h : h.get_data())
         return r
-    @staticmethod
-    def horario_confirmar_servico(id_profissional):
+    @staticmethod 
+    def horario_visualizar_meus_servicos(id_cliente): # select - where
         r = []
         for h in Service.horario_listar():
-            if h.get_confirmado() == False \
-            and h.get_id_cliente() != None and h.get_id_profissional() == id_profissional:
+            if h.get_id_cliente() == id_cliente:
                 r.append(h)
-        r.sort (key = lambda h : h.get_data())
-        return r
+        r.sort (key = lambda h : h.get_data())   
+    @staticmethod
+    def horario_listar_confimados_hoje():
+        hoje = datetime.now().date()
+        todos = Horario.listar()
+        
+        Horarios = [
+            h for h in todos 
+            if h.get_data().date() == hoje 
+            and h.get_confirmado() 
+            and h.get_cliente_id() is not None
+        ]
+        
+        return horarios
+    @staticmethod
+    def listar_agenda_profissional(profissional_id):
+        agenda = Agenda.listar()
+        horarios = [h for h in agenda if h.get_profissional_id() == profissional_id]
+        return horarios    
        
     @staticmethod
     def atendimento_inserir(data, queixa_principal, historico_saude, avaliacao, prescricao, id_horario):
