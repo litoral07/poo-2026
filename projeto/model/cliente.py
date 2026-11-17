@@ -35,6 +35,9 @@ class Cliente:
     
     def to_json(self):
         return {"id":self.__id, "nome":self.__nome, "email":self.__email, "fone":self.__fone, "senha":self.__senha }
+
+    def to_dict(self):
+        return {"ID": self.get_id(),"Nome": self.get_nome(),"E-mail": self.get_email(),"Telefone": self.get_fone()}
     
     @staticmethod
     def from_json(dic):
