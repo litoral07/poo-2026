@@ -1,6 +1,6 @@
 import json
 
-from dao_json import DAO
+from dao_json.DAO import DAO
 from model.profissional import Profissional
 
 

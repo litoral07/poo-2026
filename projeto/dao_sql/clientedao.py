@@ -1,28 +1,84 @@
-import json
+from dao_sql.dao import DAO
+from model.cliente import Cliente
 
-from dao_json import DAO
-from model.servico import Servico
+class ClienteDAO(DAO):
+    tabela = "cliente"
+    colunas = ("nome", "email", "fone", "senha")
 
-
-class ServicoDAO(DAO):
-    def abrir(self):
+    @classmethod
+    def inserir(cls, obj):
+        cls.abrir()
         try:
-            with open("servicos.json", "r", encoding="utf-8") as arquivo:
-                lista = json.load(arquivo)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self._objetos = []
-            return
-
-        self._objetos = [
-            Servico.from_json(dicionario)
-            for dicionario in lista
-        ]
-
-    def salvar(self):
-        with open("servicos.json", "w", encoding="utf-8") as arquivo:
-            json.dump(
-                [obj.to_json() for obj in self._objetos],
-                arquivo,
-                ensure_ascii=False,
-                indent=2,
+            sql = """
+                INSERT INTO cliente (nome, email, fone, senha)
+                VALUES (?, ?, ?, ?)
+            """
+            cursor = cls.execute(
+                sql,
+                (
+                    obj.get_nome(),
+                    obj.get_email(),
+                    obj.get_fone(),
+                    obj.get_senha(),
+                ),
             )
+            obj.set_id(cursor.lastrowid)
+        finally:
+            cls.fechar()
+
+    @classmethod
+    def listar(cls):
+        cls.abrir()
+        try:
+            cursor = cls.execute("SELECT * FROM cliente")
+            rows = cursor.fetchall()
+            return [
+                Cliente(id, nome, email, fone, senha)
+                for id, nome, email, fone, senha in rows
+            ]
+        finally:
+            cls.fechar()
+
+    @classmethod
+    def listar_id(cls, id):
+        cls.abrir()
+        try:
+            sql = "SELECT * FROM cliente WHERE id = ?"
+            cursor = cls.execute(sql, (id,))
+            row = cursor.fetchone()
+            return Cliente(*row) if row else None
+        finally:
+            cls.fechar()
+
+    @classmethod
+    def atualizar(cls, obj):
+        cls.abrir()
+        try:
+            sql = """
+                UPDATE cliente SET nome=?, email=?, fone=?, senha=?
+                WHERE id=?
+            """
+            cls.execute(
+                sql,
+                (
+                    obj.get_nome(),
+                    obj.get_email(),
+                    obj.get_fone(),
+                    obj.get_senha(),
+                    obj.get_id(),
+                ),
+            )
+        finally:
+            cls.fechar()
+
+    @classmethod
+    def excluir(cls, obj):
+        cls.abrir()
+        try:
+            sql = "DELETE FROM cliente WHERE id=?"
+            cls.execute(sql, (obj,))
+        finally:
+            cls.fechar()
+
+    def _objeto_da_linha(self, linha):
+        return Cliente.from_json(linha)
